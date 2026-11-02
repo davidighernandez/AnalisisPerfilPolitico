@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Perfil político</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--tx:#1d1d1b;--mu:#6b6a64;--bd:#e3e1d8;--pos:#2f7d4f;--neg:#c0392b;--neu:#9a9a92;--ac:#1f4e79;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--card:#1f1f1d;--tx:#eeede6;--mu:#a2a199;--bd:#34332f;--pos:#5cc08a;--neg:#ef7a6d;--neu:#9a9a92;--ac:#7fb2e0}}
+:root[data-theme="dark"]{--bg:#151514;--card:#1f1f1d;--tx:#eeede6;--mu:#a2a199;--bd:#34332f;--pos:#5cc08a;--neg:#ef7a6d;--neu:#9a9a92;--ac:#7fb2e0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:780px;margin:0 auto;padding:16px 14px 32px}h1{font-size:20px;margin:0 0 10px}h2{font-size:13px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu)}
+.card,.k{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.chip{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer}.chip.on{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}.k{padding:10px 12px;margin:0}.k b{display:block;font-size:21px}.k span{font-size:12px;color:var(--mu)}
+.alert{border-left:4px solid var(--neg);background:var(--card);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.bars{display:flex;gap:4px;align-items:flex-end;height:120px}.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10px;color:var(--mu)}.stack{width:100%;display:flex;flex-direction:column;justify-content:flex-end;border-radius:3px;overflow:hidden;min-height:2px}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--mu);margin-top:8px;flex-wrap:wrap}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.cloud{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:center}.cloud span{font-weight:600;line-height:1.1}
+.row{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:5px 0;border-top:1px solid var(--bd)}.row:first-of-type{border-top:0}.bar{height:6px;border-radius:3px;background:var(--ac);margin-top:3px}
+.note{padding:10px 0;border-top:1px solid var(--bd)}.note a{color:var(--tx);font-weight:600;text-decoration:none}.meta{font-size:12px;color:var(--mu);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}.tag{border-radius:99px;padding:1px 8px;font-size:11px;font-weight:600;border:1px solid currentColor}
+.foot{font-size:12px;color:var(--mu);text-align:center;margin-top:16px}a.l{color:var(--ac)}
+</style></head><body><main><h1>Perfil político</h1>
+<div class="chips" id="pp"></div><div id="fi"></div><div class="chips" id="ch"></div><div id="al"></div><div class="kpis" id="kp"></div>
+<div class="card"><h2>Menciones por día (14 días)</h2><div class="bars" id="br"></div><div class="legend"><span><i class="dot" style="background:var(--pos)"></i>Positivas</span><span><i class="dot" style="background:var(--neu)"></i>Neutras</span><span><i class="dot" style="background:var(--neg)"></i>Negativas</span></div></div>
+<div class="card"><h2>Temas asociados (7 días)</h2><div id="th"></div></div>
+<div class="card"><h2>Nube de conceptos (7 días)</h2><div class="cloud" id="cl"></div></div>
+<div class="card"><h2>Personas y entidades que aparecen junto a él/ella</h2><div id="co"></div></div>
+<div class="card"><h2>Medios</h2><div id="md"></div></div>
+<div class="card"><h2>Últimas notas</h2><div id="nt"></div></div>
+<div class="foot"><span id="up"></span><br>Fuentes públicas: Google News, GDELT y Wikipedia. El tono se estima con una lista de palabras, por lo que es orientativo.</div></main>
+<script src="data.js"></script>
+<script>
+var L=["Local","Estatal","Nacional","Internacional","Sin clasificar"],pi=0,lv=-1,$=function(i){return document.getElementById(i)};
+var DS=["dom","lun","mar","mié","jue","vie","sáb"];
+function col(s){return s>0.2?"var(--pos)":s<-0.2?"var(--neg)":"var(--neu)"}
+function sem(p){return p.N.filter(function(n){return n[0]<7}).length}
+function render(){
+ var p=P[pi],f=p.N.filter(function(n){return lv<0||n[1]==lv}),c=f.filter(function(n){return n[0]<7}),v=f.filter(function(n){return n[0]>=7});
+ var cnt=function(a,s){return a.filter(function(n){return s>0?n[4]>0:s<0?n[4]<0:n[4]==0}).length};
+ var t=c.length,ps=cnt(c,1),ng=cnt(c,-1),net=t?Math.round((ps-ng)/t*100):0,pn=v.length?Math.round((cnt(v,1)-cnt(v,-1))/v.length*100):0;
+ var all=P.reduce(function(a,q){return a+sem(q)},0),sov=all?Math.round(sem(p)/all*100):0,ms={};c.forEach(function(n){ms[n[2]]=(ms[n[2]]||0)+1});
+ var ch=v.length?Math.round((t-v.length)/v.length*100):null,pk=0;for(var d=0;d<7;d++)pk=Math.max(pk,c.filter(function(n){return n[0]==d}).length);
+ $("pp").innerHTML=P.map(function(q,i){return '<button class="chip'+(i==pi?" on":"")+'" onclick="pi='+i+';render()">'+q.nombre+'</button>'}).join("");
+ $("ch").innerHTML=["Todos"].concat(L).map(function(x,i){return '<button class="chip'+(lv==i-1?" on":"")+'" onclick="lv='+(i-1)+';render()">'+x+'</button>'}).join("");
+ var fi=p.ficha;$("fi").innerHTML='<div class="card"><b>'+p.nombre+'</b>'+(p.alias.length?' · alias: '+p.alias.join(", "):"")+'<br><span style="font-size:13px;color:var(--mu)">'+(fi?fi.x+' <a class="l" target="_blank" rel="noopener" href="'+fi.u+'">Wikipedia</a>':"Sin ficha pública en Wikipedia.")+'</span></div>';
+ var al=[];if(t>=5&&ng/t>=0.4)al.push("El "+Math.round(ng/t*100)+"% de las menciones de la semana es negativo.");if(t>=4&&pk>=2.5*t/7)al.push("Pico de menciones en un solo día: "+pk+" notas (promedio "+(t/7).toFixed(1)+").");
+ $("al").innerHTML=al.length?'<div class="alert"><b>⚠ Alertas</b><br>'+al.join("<br>")+'</div>':"";
+ var k=[[t,"Menciones (7 días)"],[ch===null?"–":(ch>=0?"▲ ":"▼ ")+Math.abs(ch)+"%","Tendencia vs. semana previa"],[t?Math.round(ps/t*100)+"%":"0%","Positivas ("+ps+")"],[t?Math.round(ng/t*100)+"%":"0%","Negativas ("+ng+")"],[(net>0?"+":"")+net,"Saldo de tono ("+(net-pn>=0?"▲ +":"▼ ")+(net-pn)+")"],[Object.keys(ms).length,"Medios distintos"],[sov+"%","Cuota de voz entre monitoreados"]];
+ $("kp").innerHTML=k.map(function(x){return '<div class="k"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join("");
+ var dd=[],mx=1;for(var i=13;i>=0;i--){var r=f.filter(function(n){return n[0]==i}),a=[cnt(r,1),cnt(r,0),cnt(r,-1)];mx=Math.max(mx,r.length);var dt=new Date();dt.setDate(dt.getDate()-i);dd.push([i,r.length,a,DS[dt.getDay()]])}
+ $("br").innerHTML=dd.map(function(x){return '<div class="col"><span>'+x[1]+'</span><div class="stack" style="height:'+x[1]/mx*100+'%"><div style="background:var(--neg);flex:'+x[2][2]+'"></div><div style="background:var(--neu);flex:'+x[2][1]+'"></div><div style="background:var(--pos);flex:'+x[2][0]+'"></div></div><span>'+x[3]+'</span></div>'}).join("");
+ var tm=p.th.length?p.th[0][1]:1;$("th").innerHTML=p.th.map(function(x){return '<div class="row" style="display:block"><div style="display:flex;justify-content:space-between"><span>'+x[0]+'</span><span>'+x[1]+'</span></div><div class="bar" style="width:'+x[1]/tm*100+'%"></div></div>'}).join("")||"Sin temas detectados";
+ $("cl").innerHTML=p.w.map(function(x){return '<span style="font-size:'+(12+Math.min(x[1],10)*3)+'px;color:'+col(x[2])+'">'+x[0]+'</span>'}).join("")||"Sin datos suficientes";
+ $("co").innerHTML=p.co.map(function(x){return '<div class="row"><span>'+x[0]+'</span><span>'+x[1]+'</span></div>'}).join("")||"Sin coincidencias frecuentes";
+ $("md").innerHTML=Object.keys(ms).sort(function(a,b){return ms[b]-ms[a]}).slice(0,8).map(function(m){return '<div class="row"><span>'+m+'</span><span>'+ms[m]+'</span></div>'}).join("")||"Sin datos";
+ $("nt").innerHTML=f.slice(0,40).map(function(n){var g=n[4]>0?["Positiva","var(--pos)"]:n[4]<0?["Negativa","var(--neg)"]:["Neutra","var(--neu)"];return '<div class="note"><a href="'+n[5]+'" target="_blank" rel="noopener">'+n[3]+'</a><div class="meta"><span class="tag" style="color:'+g[1]+'">'+g[0]+'</span><span>'+n[2]+'</span><span>'+L[n[1]]+'</span><span>'+(n[0]?"hace "+n[0]+" d":"hoy")+'</span></div></div>'}).join("")||"Sin notas";
+}
+$("up").textContent="Actualizado: "+UPDATED;render();
+</script></body></html>

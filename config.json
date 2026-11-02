@@ -1,0 +1,13 @@
+{
+  "personas": [
+    {"nombre": "Nombre Apellido", "alias": ["El Apodo"], "wikipedia": ""},
+    {"nombre": "Otro Personaje", "alias": [], "wikipedia": ""}
+  ],
+  "pais_gdelt": "Mexico",
+  "medios": {
+    "Diario del Valle": 0,
+    "Crónica Estatal": 1,
+    "El Universal": 2,
+    "Milenio": 2
+  }
+}
