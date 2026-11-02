@@ -1,6 +1,6 @@
 {
   "personas": [
-    {"nombre": "Nombre Apellido", "alias": ["El Apodo"], "wikipedia": ""},
+    {"nombre": "Cruz Perez Cuellar", "alias": ["Perez Cuellar"], "wikipedia": ""},
     {"nombre": "Otro Personaje", "alias": [], "wikipedia": ""}
   ],
   "pais_gdelt": "Mexico",
